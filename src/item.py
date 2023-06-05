@@ -1,6 +1,4 @@
 import csv
-
-
 class Item:
     """
     Класс для представления товара в магазине.
@@ -16,19 +14,11 @@ class Item:
         :param price: Цена за единицу товара.
         :param quantity: Количество товара в магазине.
         """
-        self.__name = name
+        self.name = name
         self.price = price
         self.quantity = quantity
         self.all.append(self)
 
-    @property
-    def name(self) -> str:
-        return self.__name
-
-    @name.setter
-    def name(self, value: str):
-        if len(value) <= 10:
-            self.__name = value
 
     def calculate_total_price(self) -> float:
         """
@@ -44,38 +34,22 @@ class Item:
         """
         self.price *= self.pay_rate
 
-    @staticmethod
-    def string_to_number(value: str):
-        return int(value)
+    @property
+    def name(self) -> str:
+        return self.__name
+
+    @name.setter
+    def name(self, name: str) -> None:
+        self.__name = name if len(name) <= 10 else 'Exception: Длина наименования товара превышает 10 символов.'
 
     @classmethod
-    def instantiate_from_csv(cls, filename):
-        """
-        класс-метод, инициализирующий экземпляры класса `Item` данными из файла _src/items.csv_
-        """
-        try:
-            with open(filename) as f:
-                reader = csv.DictReader(f)
-                cls.all.clear()
-                for row in reader:
-                    name = row['name']
-                    price = cls.string_to_number(row['price'])
-                    quantity = cls.string_to_number(row['quantity'])
-                    cls.all.append(cls(name, price, quantity))  # создаем экзмляры классы и кладем их в список
-        except FileNotFoundError:
-            return f"Отсутствует файл {filename}"
-        except InstantiateCSVError:
-            return f"Файл {filename} поврежден"
+    def instantiate_from_csv(cls):
+        Item.all.clear()
+        with open('../src/items.csv', 'r') as file:
+            items = csv.DictReader(file)
+            for row in items:
+                cls(row['name'], row['price'], row['quantity'])
 
-    def __repr__(self):
-        return f"Item('{self.name}', {self.price}, {self.quantity})"
-
-    def __str__(self):
-        return self.name
-
-
-class InstantiateCSVError(BaseException):
-    pass
-
-
-Item.instantiate_from_csv("C:\electronics-shop-project\src\items.csv")
+    @staticmethod
+    def string_to_number(number: str) -> int:
+        return int(float(number))
